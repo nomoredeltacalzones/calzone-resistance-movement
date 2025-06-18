@@ -1,0 +1,42 @@
+name: Generate Newsletter
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9 AM UTC
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Run in test mode'
+        required: false
+        default: 'true'
+        type: boolean
+
+jobs:
+  generate-newsletter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate and Send Newsletter
+        run: |
+          echo "🚨 Triggering Calzone Resistance Newsletter Generation..."
+          
+          response=$(curl -s -w "%{http_code}" \
+            -X GET \
+            "https://no-more-delta-calzones.netlify.app/.netlify/functions/newsletter-scheduler?action=generate" \
+            -H "User-Agent: GitHub-Actions-Newsletter-Bot/1.0")
+          
+          http_code="${response: -3}"
+          body="${response%???}"
+          
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+          
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ Newsletter generation successful!"
+          else
+            echo "❌ Newsletter generation failed with status $http_code"
+            exit 1
+          fi
+      
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "🚨 Newsletter generation failed! Check the logs and Netlify function status."
