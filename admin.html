@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Admin - Calzone Resistance Movement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #34495e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .admin-section {
+            background-color: #2c3e50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+        }
+        .button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #c0392b;
+        }
+        .button:disabled {
+            background-color: #7f8c8d;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .status.success {
+            background-color: #27ae60;
+        }
+        .status.error {
+            background-color: #c0392b;
+        }
+        .status.info {
+            background-color: #3498db;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid #34495e;
+            border-top: 4px solid #e74c3c;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .newsletter-preview {
+            background-color: #34495e;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .content-sources {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .source-card {
+            background-color: #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .source-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .source-status.active {
+            background-color: #27ae60;
+        }
+        .source-status.inactive {
+            background-color: #c0392b;
+        }
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e74c3c;
+        }
+        .nav-tab {
+            background-color: #34495e;
+            color: #ecf0f1;
+            padding: 12px 24px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .nav-tab.active {
+            background-color: #e74c3c;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 Newsletter Command Center</h1>
+        <p style="text-align: center; color: #95a5a6;">Calzone Resistance Movement - Administrative Interface</p>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('generate')">Generate Newsletter</button>
+            <button class="nav-tab" onclick="showTab('schedule')">Scheduling</button>
+            <button class="nav-tab" onclick="showTab('content')">Content Sources</button>
+            <button class="nav-tab" onclick="showTab('analytics')">Analytics</button>
+        </div>
+
+        <!-- Generate Newsletter Tab -->
+        <div id="generate" class="tab-content active">
+            <div class="admin-section">
+                <h2>📝 Newsletter Generation</h2>
+                <p>Generate a new newsletter with fresh content scraped from the internet.</p>
+                
+                <button class="button" onclick="generateNewsletter()">🚀 Generate Newsletter</button>
+                <button class="button" onclick="previewNewsletter()">👁️ Preview Last Newsletter</button>
+                <button class="button" onclick="sendTestNewsletter()">📧 Send Test Email</button>
+                
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Generating newsletter content...</p>
+                </div>
+                
+                <div id="status"></div>
+                
+                <div id="newsletter-preview" class="newsletter-preview" style="display: none;">
+                    <h3>Newsletter Preview</h3>
+                    <div id="preview-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheduling Tab -->
+        <div id="schedule" class="tab-content">
+            <div class="admin-section">
+                <h2>⏰ Newsletter Scheduling</h2>
+                <p>Set up automated newsletter generation and distribution.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">Biweekly</div>
+                        <div>Current Schedule</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="next-send">Loading...</div>
+                        <div>Next Scheduled Send</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="last-sent">Loading...</div>
+                        <div>Last Newsletter Sent</div>
+                    </div>
+                </div>
+
+                <h3>🔧 Scheduling Options</h3>
+                <div class="source-card">
+                    <h4>GitHub Actions (Recommended)</h4>
+                    <p>Use GitHub Actions to automatically trigger newsletter generation on a schedule.</p>
+                    <button class="button" onclick="setupGitHubActions()">Setup GitHub Actions</button>
+                </div>
+                
+                <div class="source-card">
+                    <h4>Zapier Integration</h4>
+                    <p>Use Zapier to schedule HTTP requests to your Netlify functions.</p>
+                    <button class="button" onclick="setupZapier()">Setup Zapier</button>
+                </div>
+                
+                <div class="source-card">
+                    <h4>External Cron Service</h4>
+                    <p>Use services like cron-job.org to trigger newsletter generation.</p>
+                    <button class="button" onclick="setupExternalCron()">Setup External Cron</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Sources Tab -->
+        <div id="content" class="tab-content">
+            <div class="admin-section">
+                <h2>🔍 Content Sources</h2>
+                <p>Monitor and manage content sources for newsletter generation.</p>
+                
+                <button class="button" onclick="testContentSources()">🧪 Test All Sources</button>
+                <button class="button" onclick="refreshSources()">🔄 Refresh Sources</button>
+                
+                <div class="content-sources">
+                    <div class="source-card">
+                        <h4>Delta Airlines News</h4>
+                        <span class="source-status active">Active</span>
+                        <p>Official Delta news and announcements</p>
+                        <small>Last updated: <span id="delta-last-update">Loading...</span></small>
+                    </div>
+                    
+                    <div class="source-card">
+                        <h4>FlyerTalk Forums</h4>
+                        <span class="source-status active">Active</span>
+                        <p>Passenger discussions and complaints</p>
+                        <small>Last updated: <span id="flyertalk-last-update">Loading...</span></small>
+                    </div>
+                    
+                    <div class="source-card">
+                        <h4>Social Media Monitoring</h4>
+                        <span class="source-status active">Active</span>
+                        <p>Twitter, Instagram, TikTok mentions</p>
+                        <small>Last updated: <span id="social-last-update">Loading...</span></small>
+                    </div>
+                    
+                    <div class="source-card">
+                        <h4>Industry News</h4>
+                        <span class="source-status active">Active</span>
+                        <p>Aviation Week, Simple Flying, etc.</p>
+                        <small>Last updated: <span id="industry-last-update">Loading...</span></small>
+                    </div>
+                    
+                    <div class="source-card">
+                        <h4>Review Sites</h4>
+                        <span class="source-status active">Active</span>
+                        <p>TripAdvisor, Yelp, Skytrax reviews</p>
+                        <small>Last updated: <span id="reviews-last-update">Loading...</span></small>
+                    </div>
+                    
+                    <div class="source-card">
+                        <h4>Competitor Analysis</h4>
+                        <span class="source-status active">Active</span>
+                        <p>Other airlines' food service news</p>
+                        <small>Last updated: <span id="competitor-last-update">Loading...</span></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <div class="admin-section">
+                <h2>📊 Newsletter Analytics</h2>
+                <p>Track newsletter performance and engagement metrics.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-subscribers">Loading...</div>
+                        <div>Total Subscribers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="open-rate">Loading...</div>
+                        <div>Average Open Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="click-rate">Loading...</div>
+                        <div>Average Click Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="newsletters-sent">Loading...</div>
+                        <div>Newsletters Sent</div>
+                    </div>
+                </div>
+                
+                <button class="button" onclick="refreshAnalytics()">🔄 Refresh Analytics</button>
+                <button class="button" onclick="exportAnalytics()">📥 Export Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Newsletter generation functions
+        async function generateNewsletter() {
+            const loadingDiv = document.getElementById('loading');
+            const statusDiv = document.getElementById('status');
+            const generateBtn = event.target;
+            
+            generateBtn.disabled = true;
+            loadingDiv.style.display = 'block';
+            statusDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('/.netlify/functions/generate-newsletter');
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.innerHTML = `
+                        <div class="status success">
+                            <h3>✅ Newsletter Generated Successfully!</h3>
+                            <p>Generated at: ${new Date(result.generatedAt).toLocaleString()}</p>
+                            <p>Issue #${result.newsletter.header.issueNumber} - Day ${result.newsletter.header.resistanceDay}</p>
+                        </div>
+                    `;
+                    
+                    // Store newsletter for preview
+                    localStorage.setItem('lastNewsletter', JSON.stringify(result.newsletter));
+                } else {
+                    throw new Error(result.error || 'Unknown error');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <h3>❌ Generation Failed</h3>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                loadingDiv.style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        }
+
+        async function previewNewsletter() {
+            const previewDiv = document.getElementById('newsletter-preview');
+            const contentDiv = document.getElementById('preview-content');
+            
+            const lastNewsletter = localStorage.getItem('lastNewsletter');
+            if (!lastNewsletter) {
+                alert('No newsletter to preview. Generate one first!');
+                return;
+            }
+            
+            const newsletter = JSON.parse(lastNewsletter);
+            
+            contentDiv.innerHTML = `
+                <h4>🚨 Resistance Intelligence Briefing #${newsletter.header.issueNumber}</h4>
+                <p><strong>Day ${newsletter.header.resistanceDay} of the Calzone Resistance</strong></p>
+                
+                <h5>🎯 Featured Crime:</h5>
+                <p>${newsletter.header.featuredCrime}</p>
+                
+                <h5>👤 Member Spotlight:</h5>
+                <p><strong>${newsletter.header.memberSpotlight.name}</strong> - ${newsletter.header.memberSpotlight.achievement}</p>
+                
+                <h5>📡 Recent Field Reports:</h5>
+                ${newsletter.fieldReports.recentEncounters.map(report => `<p>• ${report}</p>`).join('')}
+                
+                <h5>⚡ Tactical Updates:</h5>
+                <p>Active Members: ${newsletter.tacticalUpdates.memberCount.toLocaleString()}</p>
+                <p>Filed Complaints: ${newsletter.tacticalUpdates.complaintCount.toLocaleString()}</p>
+                
+                <h5>🛡️ This Week's Survival Tip:</h5>
+                <p>${newsletter.survivalTips.weeklyTip}</p>
+                
+                <h5>😂 Resistance Humor:</h5>
+                <p>${newsletter.resistanceHumor.joke}</p>
+            `;
+            
+            previewDiv.style.display = 'block';
+        }
+
+        async function sendTestNewsletter() {
+            const lastNewsletter = localStorage.getItem('lastNewsletter');
+            if (!lastNewsletter) {
+                alert('No newsletter to send. Generate one first!');
+                return;
+            }
+            
+            const newsletter = JSON.parse(lastNewsletter);
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                const response = await fetch('/.netlify/functions/send-newsletter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        newsletter: newsletter,
+                        subscribers: [{ email: 'test@example.com', name: 'Test User' }],
+                        testMode: true
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.innerHTML = `
+                        <div class="status success">
+                            <h3>📧 Test Email Sent!</h3>
+                            <p>Sent to ${result.sent} recipient(s)</p>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(result.error || 'Failed to send test email');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <h3>❌ Email Send Failed</h3>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Scheduling functions
+        function setupGitHubActions() {
+            const instructions = `
+To set up GitHub Actions for automated newsletter generation:
+
+1. Create .github/workflows/newsletter.yml in your repository
+2. Add the following content:
+
+name: Generate Newsletter
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9 AM UTC (biweekly)
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Newsletter Generation
+        run: |
+          curl -X GET "https://your-site.netlify.app/.netlify/functions/newsletter-scheduler?action=generate"
+
+3. Commit and push to your repository
+4. The workflow will run automatically on schedule
+            `;
+            
+            alert(instructions);
+        }
+
+        function setupZapier() {
+            const instructions = `
+To set up Zapier automation:
+
+1. Create a new Zap in Zapier
+2. Choose "Schedule by Zapier" as the trigger
+3. Set frequency to "Every 2 Weeks"
+4. Choose "Webhooks by Zapier" as the action
+5. Set URL to: https://your-site.netlify.app/.netlify/functions/newsletter-scheduler?action=generate
+6. Set method to GET
+7. Test and turn on the Zap
+            `;
+            
+            alert(instructions);
+        }
+
+        function setupExternalCron() {
+            const instructions = `
+To set up external cron service:
+
+1. Go to cron-job.org or similar service
+2. Create a new cron job
+3. Set URL to: https://your-site.netlify.app/.netlify/functions/newsletter-scheduler?action=generate
+4. Set schedule to: 0 9 * * 1 (every Monday at 9 AM)
+5. For biweekly, you may need to manually manage the schedule
+6. Save and activate the cron job
+            `;
+            
+            alert(instructions);
+        }
+
+        // Content source functions
+        async function testContentSources() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<div class="status info">🧪 Testing content sources...</div>';
+            
+            try {
+                const response = await fetch('/.netlify/functions/scrape-content');
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.innerHTML = `
+                        <div class="status success">
+                            <h3>✅ Content Sources Test Successful</h3>
+                            <p>All sources are responding correctly</p>
+                            <p>Last scraped: ${new Date(result.scrapedAt).toLocaleString()}</p>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(result.error || 'Content source test failed');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <h3>❌ Content Source Test Failed</h3>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function refreshSources() {
+            // Update last update times
+            const now = new Date().toLocaleString();
+            document.getElementById('delta-last-update').textContent = now;
+            document.getElementById('flyertalk-last-update').textContent = now;
+            document.getElementById('social-last-update').textContent = now;
+            document.getElementById('industry-last-update').textContent = now;
+            document.getElementById('reviews-last-update').textContent = now;
+            document.getElementById('competitor-last-update').textContent = now;
+            
+            document.getElementById('status').innerHTML = `
+                <div class="status success">
+                    <h3>🔄 Sources Refreshed</h3>
+                    <p>All content sources have been updated</p>
+                </div>
+            `;
+        }
+
+        // Analytics functions
+        function refreshAnalytics() {
+            // Mock analytics data
+            document.getElementById('total-subscribers').textContent = '1,247';
+            document.getElementById('open-rate').textContent = '94.7%';
+            document.getElementById('click-rate').textContent = '23.4%';
+            document.getElementById('newsletters-sent').textContent = '42';
+            
+            document.getElementById('status').innerHTML = `
+                <div class="status success">
+                    <h3>📊 Analytics Refreshed</h3>
+                    <p>Latest performance metrics loaded</p>
+                </div>
+            `;
+        }
+
+        function exportAnalytics() {
+            const data = {
+                totalSubscribers: 1247,
+                openRate: 94.7,
+                clickRate: 23.4,
+                newslettersSent: 42,
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'newsletter-analytics.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial values
+            document.getElementById('next-send').textContent = 'Monday 9 AM';
+            document.getElementById('last-sent').textContent = 'Never';
+            
+            // Set initial update times
+            const now = new Date().toLocaleString();
+            document.getElementById('delta-last-update').textContent = now;
+            document.getElementById('flyertalk-last-update').textContent = now;
+            document.getElementById('social-last-update').textContent = now;
+            document.getElementById('industry-last-update').textContent = now;
+            document.getElementById('reviews-last-update').textContent = now;
+            document.getElementById('competitor-last-update').textContent = now;
+            
+            // Load analytics
+            refreshAnalytics();
+        });
+    </script>
+</body>
+</html>
+

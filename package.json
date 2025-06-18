@@ -1,0 +1,33 @@
+{
+  "name": "calzone-resistance-movement",
+  "version": "1.0.0",
+  "description": "The official website of the Calzone Resistance Movement - fighting airline food crimes at 30,000 feet",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Static site - no build needed'",
+    "dev": "python3 -m http.server 8000",
+    "newsletter": "node netlify/functions/generate-newsletter.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.0",
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2.4.0"
+  },
+  "keywords": [
+    "airline-food",
+    "delta-airlines",
+    "calzone",
+    "resistance",
+    "travel",
+    "humor",
+    "newsletter"
+  ],
+  "author": "Calzone Resistance Movement",
+  "license": "MIT"
+}
+
